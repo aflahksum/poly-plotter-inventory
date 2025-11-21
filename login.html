@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login – KSUM–SSK Plotter Inventory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="card">
+  <h1>User Login</h1>
+
+  <p class="rack">
+    Rack: <span id="rackLabel"></span> <br>
+    Role: <span id="roleLabel"></span>
+  </p>
+
+  <label>Name</label>
+  <input id="nameInput" type="text" placeholder="Enter your name">
+
+  <label>Entry Code</label>
+  <input id="codeInput" type="password" placeholder="4–6 digit code">
+
+  <button class="btn tech" onclick="goNext()">Continue</button>
+
+  <p class="small">
+    Ensure your Entry Code is correct.
+  </p>
+</div>
+
+<script>
+  // Read URL params
+  const params = new URLSearchParams(window.location.search);
+  const rack = params.get("rack") || "Not specified";
+  const role = params.get("role") || "technician";
+
+  // Display on page
+  document.getElementById("rackLabel").innerText = rack;
+  document.getElementById("roleLabel").innerText = role;
+
+  function goNext() {
+    const name = document.getElementById("nameInput").value.trim();
+    const code = document.getElementById("codeInput").value.trim();
+
+    if (!name) {
+      alert("Please enter your name.");
+      return;
+    }
+    if (!code) {
+      alert("Please enter your entry code.");
+      return;
+    }
+
+    // Go to home.html
+    window.location.href =
+      `home.html?rack=${encodeURIComponent(rack)}&role=${encodeURIComponent(role)}&name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}`;
+  }
+</script>
+
+</body>
+</html>

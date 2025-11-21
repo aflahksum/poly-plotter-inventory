@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Poly Plotter Inventory – Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <style>
+      /* Centered logo */
+      .header-logo {
+          width: 140px;
+          display: block;
+          margin: 0 auto 8px auto;
+      }
+
+      .title-main {
+          text-align: center;
+          font-size: 26px;
+          margin-top: 4px;
+          font-weight: 700;
+      }
+
+      .subtitle {
+          text-align: center;
+          font-size: 14px;
+          margin-top: 4px;
+          margin-bottom: 16px;
+          color: #555;
+      }
+
+      .rack-info {
+          text-align: center;
+          margin: 8px 0 18px 0;
+          font-size: 15px;
+          line-height: 1.4;
+      }
+
+      .section-title {
+          text-align: center;
+          font-weight: 600;
+          margin-bottom: 10px;
+      }
+
+      /* Bubbly button layout */
+      .action-group {
+          max-width: 380px;        /* keeps buttons narrower than card */
+          margin: 0 auto 4px auto; /* center inside card */
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+      }
+
+      .action-btn {
+          display: block;
+          width: 100%;
+          padding: 14px 18px;
+          font-size: 16px;
+          border-radius: 999px;   /* pill / bubble */
+          text-align: center;
+          color: #fff;
+          font-weight: 600;
+          text-decoration: none;
+          border: none;
+          outline: none;
+          cursor: pointer;
+
+          /* bubbly feel */
+          box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+          transition:
+            transform 0.12s ease-out,
+            box-shadow 0.12s ease-out,
+            opacity 0.12s ease-out;
+      }
+
+      .action-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+          opacity: 0.96;
+      }
+
+      .action-btn:active {
+          transform: translateY(1px) scale(0.99);
+          box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+      }
+
+      .take   { background: #1976d2; } /* blue */
+      .restock{ background: #2e7d32; } /* green */
+      .view   { background: #616161; } /* grey */
+  </style>
+
+</head>
+<body>
+
+<div class="card">
+
+  <!-- Centered FABLAB Kerala Logo -->
+  <img src="assets/img/fablab-kerala-logo.png" class="header-logo" alt="FABLAB Kerala">
+
+  <h1 class="title-main">Poly Plotter Inventory</h1>
+  <p class="subtitle">FABLAB Kerala · KSUM SSK Lab</p>
+
+  <div class="rack-info">
+      Rack: <b id="rackLabel"></b><br>
+      User: <b id="nameLabel"></b><br>
+      Role: <b id="roleLabel"></b>
+  </div>
+
+  <div class="section-title">Select an action:</div>
+
+  <div class="action-group">
+    <button type="button"
+            class="action-btn take"
+            onclick="goAction('ISSUE')">
+      Take Items from Stock
+    </button>
+
+    <button type="button"
+            class="action-btn restock"
+            onclick="goAction('RETURN')">
+      Restock Items
+    </button>
+
+    <button type="button"
+            class="action-btn view"
+            onclick="goAction('VIEW')">
+      View Stock
+    </button>
+  </div>
+
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const rack = params.get("rack") || "Not specified";
+  const role = params.get("role") || "technician";
+  const name = params.get("name") || "";
+  const code = params.get("code") || "";
+
+  document.getElementById("rackLabel").innerText = rack;
+  document.getElementById("roleLabel").innerText = role;
+  document.getElementById("nameLabel").innerText = name;
+
+  function goAction(action) {
+      window.location.href =
+        `category.html?rack=${encodeURIComponent(rack)}`
+        + `&role=${encodeURIComponent(role)}`
+        + `&name=${encodeURIComponent(name)}`
+        + `&code=${encodeURIComponent(code)}`
+        + `&action=${encodeURIComponent(action)}`;
+  }
+</script>
+
+</body>
+</html>

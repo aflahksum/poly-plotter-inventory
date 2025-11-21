@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Poly Plotter – Inventory Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="card">
+
+  <!-- TOP LOGO -->
+  <div class="logo-container">
+    <img src="assets/img/fablab-kerala-logo.png" class="top-logo" alt="FABLAB Kerala">
+    <div class="logo-subtext">FABLAB Kerala</div>
+  </div>
+
+  <h1>Poly Plotter – Inventory Management</h1>
+
+  <!-- Rack selection -->
+  <label for="rackSelect" style="text-align:left;">Select Rack</label>
+  <select id="rackSelect" class="input-select">
+    <option value="">-- choose rack --</option>
+    <option value="RACK01">RACK01</option>
+    <option value="RACK02">RACK02</option>
+    <option value="RACK03">RACK03</option>
+  </select>
+
+  <p class="rack">Selected Rack: <span id="rackLabel">None</span></p>
+
+  <p>Select your access mode:</p>
+
+  <!-- Buttons -->
+  <button class="btn blue-btn" onclick="selectRole('technician')">Use Tools</button>
+  <button class="btn red-btn" onclick="selectRole('admin')">Manage Inventory</button>
+
+  <p class="small">
+    QR codes will automatically select the rack when scanned.
+  </p>
+
+</div>
+
+<script>
+  const rackSelect = document.getElementById("rackSelect");
+  const rackLabel = document.getElementById("rackLabel");
+
+  const params = new URLSearchParams(window.location.search);
+  const urlRack = params.get("rack");
+  if (urlRack) {
+    rackSelect.value = urlRack;
+    rackLabel.innerText = urlRack;
+  }
+
+  rackSelect.addEventListener("change", () => {
+    rackLabel.innerText = rackSelect.value || "None";
+  });
+
+  function selectRole(role) {
+    const rack = rackSelect.value;
+    if (!rack) {
+      alert("Please select a rack first.");
+      return;
+    }
+    window.location.href =
+      `login.html?rack=${encodeURIComponent(rack)}&role=${encodeURIComponent(role)}`;
+  }
+</script>
+
+</body>
+</html>

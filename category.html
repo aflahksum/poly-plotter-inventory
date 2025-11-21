@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Select Category – Inventory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="card">
+  <h1>Select Category</h1>
+
+  <p class="rack">
+    Rack: <span id="rackLabel"></span><br>
+    User: <span id="nameLabel"></span><br>
+    Role: <span id="roleLabel"></span><br>
+    Action: <span id="actionLabel"></span>
+  </p>
+
+  <button class="category-btn category-electronics" onclick="goItems('electronics')">
+    Electronics
+  </button>
+
+  <button class="category-btn category-mechanical" onclick="goItems('mechanical')">
+    Mechanical
+  </button>
+
+  <button class="category-btn category-fasteners" onclick="goItems('fasteners')">
+    Fasteners
+  </button>
+
+  <button class="category-btn category-others" onclick="goItems('others')">
+    Others
+  </button>
+
+  <button class="btn-back btn" onclick="goBack()">Back to Actions</button>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const rack = params.get("rack") || "Not specified";
+  const role = params.get("role") || "technician";
+  const name = params.get("name") || "";
+  const code = params.get("code") || "";
+  const action = params.get("action") || "ISSUE";
+
+  document.getElementById("rackLabel").innerText = rack;
+  document.getElementById("roleLabel").innerText = role;
+  document.getElementById("nameLabel").innerText = name;
+  document.getElementById("actionLabel").innerText = action;
+
+  function goItems(category) {
+    window.location.href =
+      `items.html?rack=${encodeURIComponent(rack)}&role=${encodeURIComponent(role)}&name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}&action=${encodeURIComponent(action)}&category=${encodeURIComponent(category)}`;
+  }
+
+  function goBack() {
+    window.location.href =
+      `home.html?rack=${encodeURIComponent(rack)}&role=${encodeURIComponent(role)}&name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}`;
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Update Item – Inventory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <!-- SweetAlert2 for nice popups -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+<div class="card">
+  <h1>Update Item</h1>
+
+  <p class="rack">
+    Rack: <span id="rackLabel"></span><br>
+    Item: <span id="itemLabel"></span><br>
+    <span id="itemNameLabel"></span><br>
+    Action: <span id="actionLabel"></span><br>
+    <span id="stockLabel"></span>
+  </p>
+
+  <label for="qty">Quantity</label>
+  <input id="qty" type="number" placeholder="Enter quantity">
+
+  <label for="remarks">Remarks</label>
+  <input id="remarks" type="text" placeholder="Optional">
+
+  <button class="btn tech" onclick="submitUpdate()">Confirm</button>
+  <button class="btn view" onclick="goBack()">Back</button>
+</div>
+
+<script>
+  // ---- Helper to read URL params ----
+  function getParam(name) {
+    return new URLSearchParams(window.location.search).get(name);
+  }
+
+  // ---- Read values from URL ----
+  const rack        = getParam("rack");
+  const role        = getParam("role");
+  const userName    = getParam("name");
+  const code        = getParam("code");
+  const itemId      = getParam("itemId");
+  const category    = getParam("category");
+  const action      = getParam("action");   // ISSUE / RETURN / VIEW
+  const itemName    = getParam("itemName") || ""; // optional, for display
+  const currentStockStr = getParam("stock");       // optional, for validation
+  const currentStock = currentStockStr ? parseFloat(currentStockStr) : NaN;
+
+  // ---- Fill labels on page ----
+  document.getElementById("rackLabel").innerText     = rack || "";
+  document.getElementById("itemLabel").innerText     = itemId || "";
+  document.getElementById("actionLabel").innerText   = action || "";
+  document.getElementById("itemNameLabel").innerText = itemName ? `(${itemName})` : "";
+  document.getElementById("stockLabel").innerText    =
+    isNaN(currentStock) ? "" : `Current stock: ${currentStock}`;
+
+  // ---- Apps Script API URL ----
+  const API_URL = "https://script.google.com/macros/s/AKfycbznAEnny7WgiynnUwU96c8LuVM2OF7KxJvUQ5t67D0_Ouq4Ps9kbFM-PRbiyl3qVHU0/exec";
+
+  // ---- Submit update ----
+  async function submitUpdate() {
+    const qtyValue = document.getElementById("qty").value;
+    const remarks  = document.getElementById("remarks").value || "";
+
+    const qty = parseFloat(qtyValue);
+
+    // Basic quantity validation
+    if (!qty || qty <= 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Invalid quantity',
+        text: 'Please enter a quantity greater than 0.',
+        confirmButtonColor: '#1e88e5',
+        heightAuto: false,
+      });
+      return;
+    }
+
+    // ---- Local stock validation for ISSUE ----
+    if (action === "ISSUE" && !isNaN(currentStock)) {
+
+      // Case 1: stock is 0 → cannot issue at all
+      if (currentStock <= 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'No Stock Available',
+          html: `
+            <div style="text-align:left; font-size:14px; line-height:1.6;">
+              <b>${itemId}${itemName ? ' – ' + itemName : ''}</b><br>
+              Current stock is <b>0</b>.<br>
+              You cannot issue this item right now.
+            </div>
+          `,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#e53935',
+          heightAuto: false,
+        });
+        return;
+      }
+
+      // Case 2: user requests more than available
+      if (qty > currentStock) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Insufficient Stock',
+          html: `
+            <div style="text-align:left; font-size:14px; line-height:1.6;">
+              Requested quantity: <b>${qty}</b><br>
+              Available stock: <b>${currentStock}</b><br><br>
+              You cannot issue more than what is available.
+            </div>
+          `,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#f9a825',
+          heightAuto: false,
+        });
+        return;
+      }
+    }
+    // For RETURN, we allow any quantity (stock will increase)
+
+    // ---- Build API URL for saving ----
+    const url =
+      `${API_URL}?page=save`
+      + `&rack=${encodeURIComponent(rack)}`
+      + `&role=${encodeURIComponent(role)}`
+      + `&userName=${encodeURIComponent(userName)}`
+      + `&entryCode=${encodeURIComponent(code)}`
+      + `&action=${encodeURIComponent(action)}`
+      + `&category=${encodeURIComponent(category)}`
+      + `&itemId=${encodeURIComponent(itemId)}`
+      + `&qty=${encodeURIComponent(qty)}`
+      + `&remarks=${encodeURIComponent(remarks)}`;
+
+    try {
+      const res  = await fetch(url);
+      const data = await res.json();
+
+      if (!data.ok) {
+        console.error(data);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error saving transaction.',
+          confirmButtonColor: '#e53935',
+          heightAuto: false,
+        });
+        return;
+      }
+
+      const r = data.result;
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Saved!',
+        html: `
+          <div style="text-align:left; font-size:14px; line-height:1.6;">
+            <b>Item:</b> ${r.itemId} – ${r.itemName}<br>
+            <b>Action:</b> ${r.action}<br>
+            <b>Quantity:</b> ${r.quantity}<br>
+            <b>Stock:</b> ${r.previousStock} → ${r.newStock}
+          </div>
+        `,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#1e88e5',
+        heightAuto: false,
+      }).then(() => {
+        // Back to items list after OK
+        goBack();
+      });
+
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Network error',
+        text: 'Could not reach the server. Please try again.',
+        confirmButtonColor: '#e53935',
+        heightAuto: false,
+      });
+    }
+  }
+
+  // ---- Navigate back to items list ----
+  function goBack() {
+    window.location.href =
+      `items.html?rack=${encodeURIComponent(rack)}`
+      + `&role=${encodeURIComponent(role)}`
+      + `&name=${encodeURIComponent(userName)}`
+      + `&code=${encodeURIComponent(code)}`
+      + `&action=${encodeURIComponent(action)}`
+      + `&category=${encodeURIComponent(category)}`;
+  }
+</script>
+
+</body>
+</html>
