@@ -52,6 +52,33 @@ h1 {
    BRANDING / LOGO
 ============================ */
 
+/* New: generic top logo container (used on index/home) */
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+/* New: main logo image */
+.top-logo {
+  display: block;
+  max-width: 180px;
+  width: 55%;
+  height: auto;
+  margin: 0 auto 4px auto;
+}
+
+/* New: small text under logo (FABLAB Kerala) */
+.logo-subtext {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #6b7280;
+}
+
+/* Old brand row (if you use logo + text side-by-side anywhere) */
 .brand-row {
   display: flex;
   align-items: center;
@@ -79,7 +106,7 @@ h1 {
   color: #111827;
 }
 
-/* If logo is used centered (home page) */
+/* If logo is used centered (legacy header) */
 .header-logo {
   display: block;
   margin: 0 auto 6px auto;
@@ -351,5 +378,11 @@ tbody tr:nth-child(even) {
 
   .brand-row {
     justify-content: center;
+  }
+
+  /* Make logo a bit smaller on small screens */
+  .top-logo {
+    max-width: 150px;
+    width: 60%;
   }
 }
